@@ -2986,6 +2986,35 @@ Image_colorspace(VALUE self)
  * @see Magick::colorSpace in Magick++'s Magick::colorSpace
  */
 VALUE
+Image_transform_colorspace(VALUE self, VALUE colorspace)
+{
+#if defined(HAVE_TRANSFORMIMAGECOLORSPACE)
+    Image *image;
+    ColorspaceType new_cs;
+
+    image = rm_check_frozen(self);
+    VALUE_TO_ENUM(colorspace, new_cs, ColorspaceType);
+    (void) TransformImageColorspace(image, new_cs);
+
+    return self;
+#else
+    return Image_colorspace_eq(image, new_cs);
+#endif
+}
+
+
+/**
+ * Set the image's colorspace.
+ *
+ * Ruby usage:
+ *   - @verbatim Image#colorspace=Magick::ColorspaceType @endverbatim
+ *
+ * @param self this object
+ * @param colorspace the colorspace
+ * @return self
+ * @see Magick::colorSpace in Magick++'s Magick::colorSpace
+ */
+VALUE
 Image_colorspace_eq(VALUE self, VALUE colorspace)
 {
     Image *image;
@@ -2993,11 +3022,7 @@ Image_colorspace_eq(VALUE self, VALUE colorspace)
 
     image = rm_check_frozen(self);
     VALUE_TO_ENUM(colorspace, new_cs, ColorspaceType);
-#if defined(HAVE_TRANSFORMIMAGECOLORSPACE)
-    (void) TransformImageColorspace(image, new_cs);
-#else
     (void) SetImageColorspace(image, new_cs);
-#endif
 
     return self;
 }
